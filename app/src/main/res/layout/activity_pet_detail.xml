@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent">
+    <LinearLayout android:orientation="vertical" android:padding="16dp" android:layout_width="match_parent" android:layout_height="wrap_content">
+        <ImageView android:id="@+id/imgPetMain" android:layout_width="match_parent" android:layout_height="240dp" android:scaleType="centerCrop"/>
+        <TextView android:id="@+id/tvPetName" android:textSize="22sp" android:textStyle="bold" android:layout_marginTop="10dp"/>
+        <TextView android:id="@+id/tvPetAttrs" android:layout_marginTop="6dp"/>
+        <TextView android:id="@+id/tvPetDesc" android:layout_marginTop="12dp"/>
+        <Button android:id="@+id/btnRequest" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Solicitar Adopción" android:layout_marginTop="20dp"/>
+    </LinearLayout>
+</ScrollView>

@@ -1,3 +1,23 @@
 <resources>
-    <string name="app_name">App Adopcion Animales</string>
+    <string name="app_name">AppAdopcionAnimales</string>
+
+    <string-array name="array_tamanos">
+        <item>Todos</item>
+        <item>Pequeño</item>
+        <item>Mediano</item>
+        <item>Grande</item>
+    </string-array>
+
+    <string-array name="array_sexos">
+        <item>Todos</item>
+        <item>Macho</item>
+        <item>Hembra</item>
+    </string-array>
+
+    <string-array name="array_categorias">
+        <item>Todos</item>
+        <item>Perro</item>
+        <item>Gato</item>
+        <item>Otro</item>
+    </string-array>
 </resources>
