@@ -32,7 +32,6 @@ android {
 }
 
 dependencies {
-
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)
@@ -41,16 +40,12 @@ dependencies {
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
 
-//    Nuevo
-
+    // Network / images / UI
     implementation("com.android.volley:volley:1.2.1")
     implementation("com.squareup.picasso:picasso:2.8")
-// Para cargar fotos
     implementation("androidx.recyclerview:recyclerview:1.3.1")
-    implementation("com.android.volley:volley:1.2.1")
-    implementation("com.squareup.picasso:picasso:2.8")
-    implementation("androidx.recyclerview:recyclerview:1.3.0")
     implementation("androidx.cardview:cardview:1.0.0")
+    // androidx appcompat y material ya vienen por libs.appcompat/libs.material; si las querés explícitas:
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.8.0")
 }

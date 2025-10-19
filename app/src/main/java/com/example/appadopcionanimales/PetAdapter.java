@@ -22,11 +22,15 @@ public class PetAdapter extends RecyclerView.Adapter<PetAdapter.ViewHolder> {
     public PetAdapter(Context c, JSONArray petsArray) {
         this.ctx = c;
         this.pets = petsArray;
+        if (this.pets == null) {
+            this.pets = new JSONArray(); // evita NPE en getItemCount
+        }
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         ImageView imgPet;
         TextView tvPetName, tvPetInfo;
+
         public ViewHolder(View v) {
             super(v);
             imgPet = v.findViewById(R.id.imgPet);
@@ -44,29 +48,52 @@ public class PetAdapter extends RecyclerView.Adapter<PetAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(PetAdapter.ViewHolder holder, int position) {
         try {
-            JSONObject pet = pets.getJSONObject(position);
-            holder.tvPetName.setText(pet.optString("nombre","Sin nombre"));
-            String info = pet.optString("tamano","") + " • " + pet.optString("categoria","");
+            JSONObject pet = pets.optJSONObject(position);
+            if (pet == null) {
+                holder.tvPetName.setText("Sin nombre");
+                holder.tvPetInfo.setText("");
+                holder.imgPet.setImageResource(R.mipmap.ic_launcher);
+                return;
+            }
+
+            holder.tvPetName.setText(pet.optString("nombre", "Sin nombre"));
+            String tamano = pet.optString("tamano", "");
+            String categoria = pet.optString("categoria", "");
+            String info = (tamano.isEmpty() ? "" : tamano) + (!tamano.isEmpty() && !categoria.isEmpty() ? " • " : "") + (categoria.isEmpty() ? "" : categoria);
             holder.tvPetInfo.setText(info);
 
-            String foto = pet.optString("foto","");
+            String foto = pet.optString("foto", "");
             if (foto != null && !foto.isEmpty()) {
-                Picasso.get().load(foto).fit().centerCrop().into(holder.imgPet);
+                try {
+                    Picasso.get().load(foto).fit().centerCrop().into(holder.imgPet);
+                } catch (Exception e) {
+                    holder.imgPet.setImageResource(R.mipmap.ic_launcher);
+                }
             } else {
                 holder.imgPet.setImageResource(R.mipmap.ic_launcher);
             }
 
             holder.itemView.setOnClickListener(v -> {
-                Intent i = new Intent(ctx, PetDetailActivity.class);
-                try { i.putExtra("pet_id", pet.getInt("id")); } catch (Exception e) {}
-                ctx.startActivity(i);
+                try {
+                    Intent i = new Intent(ctx, PetDetailActivity.class);
+                    i.putExtra("pet_id", pet.optInt("id", 0));
+                    ctx.startActivity(i);
+                } catch (Exception e) {
+                    // no hacer crash por click
+                    e.printStackTrace();
+                }
             });
 
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) {
+            e.printStackTrace();
+            holder.tvPetName.setText("Error");
+            holder.tvPetInfo.setText("");
+            holder.imgPet.setImageResource(R.mipmap.ic_launcher);
+        }
     }
 
     @Override
     public int getItemCount() {
-        return pets.length();
+        return pets != null ? pets.length() : 0;
     }
 }
