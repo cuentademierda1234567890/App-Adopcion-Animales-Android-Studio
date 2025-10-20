@@ -10,6 +10,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Solicitante"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp"/>
+
         <EditText
             android:id="@+id/etApplicantName"
             android:layout_width="match_parent"
@@ -35,12 +42,33 @@
             android:layout_height="wrap_content"
             android:hint="Dirección"/>
 
+        <TextView
+            android:layout_marginTop="12dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Elegí un horario disponible"
+            android:textStyle="bold"/>
+
+        <RadioGroup
+            android:id="@+id/rgSlots"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+
+        <Button
+            android:id="@+id/btnAceptarHorario"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Aceptar horario"
+            android:layout_marginTop="8dp"/>
+
         <EditText
             android:id="@+id/etNotes"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Observaciones"
-            android:inputType="textMultiLine"/>
+            android:inputType="textMultiLine"
+            android:layout_marginTop="12dp"/>
 
         <Button
             android:id="@+id/btnSubmitApplication"
