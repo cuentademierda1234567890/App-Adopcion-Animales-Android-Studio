@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/filter_root"
     android:orientation="vertical"
@@ -5,15 +6,49 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Tamaño"/>
-    <Spinner android:id="@+id/spTamano" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Tamaño" />
 
-    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Sexo" android:layout_marginTop="12dp"/>
-    <Spinner android:id="@+id/spSexo" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+    <Spinner
+        android:id="@+id/spTamano"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
-    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Categoría" android:layout_marginTop="12dp"/>
-    <Spinner android:id="@+id/spCategoria" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+    <TextView
+        android:layout_marginTop="12dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Sexo" />
 
-    <Button android:id="@+id/btnApply" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Aplicar filtros" android:layout_marginTop="16dp"/>
-    <Button android:id="@+id/btnClear" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Limpiar" android:layout_marginTop="8dp"/>
+    <Spinner
+        android:id="@+id/spSexo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:layout_marginTop="12dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Categoría" />
+
+    <Spinner
+        android:id="@+id/spCategoria"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <Button
+        android:id="@+id/btnApply"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Aplicar filtros"
+        android:layout_marginTop="16dp" />
+
+    <Button
+        android:id="@+id/btnClear"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Limpiar"
+        android:layout_marginTop="8dp" />
 </LinearLayout>

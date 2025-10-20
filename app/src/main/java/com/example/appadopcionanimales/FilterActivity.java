@@ -1,13 +1,16 @@
 package com.example.appadopcionanimales;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.view.ViewCompat;
 
+import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
+import android.widget.Toast;
+
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 public class FilterActivity extends AppCompatActivity {
 
@@ -22,46 +25,73 @@ public class FilterActivity extends AppCompatActivity {
         spTamano = findViewById(R.id.spTamano);
         spSexo = findViewById(R.id.spSexo);
         spCategoria = findViewById(R.id.spCategoria);
-
         btnApply = findViewById(R.id.btnApply);
         btnClear = findViewById(R.id.btnClear);
 
-        // Valores de ejemplo
-        String[] tamaños = {"Todos", "Pequeño", "Mediano", "Grande"};
-        String[] sexos = {"Todos", "Macho", "Hembra"};
-        String[] categorias = {"Todos", "Perro", "Gato"};
+        setupSpinners();
 
-        spTamano.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, tamaños));
-        spSexo.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, sexos));
-        spCategoria.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, categorias));
-
-        // Listener para insets
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.filter_root), (v, insets) -> insets);
-
-        // Aplicar filtros
         btnApply.setOnClickListener(v -> applyFilters());
-
-        // Limpiar filtros
         btnClear.setOnClickListener(v -> clearFilters());
     }
 
-    private void applyFilters() {
-        String size = spTamano.getSelectedItem().toString();
-        String sex = spSexo.getSelectedItem().toString();
-        String category = spCategoria.getSelectedItem().toString();
+    private void setupSpinners() {
+        ArrayAdapter<String> adapterTamano = new ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_item,
+                new String[] {"Todos", "Pequeño", "Mediano", "Grande"});
+        adapterTamano.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spTamano.setAdapter(adapterTamano);
 
-        // Aquí envías los filtros al RecyclerView de animales
-        // Por ejemplo con un Intent:
-        // Intent intent = new Intent(this, AnimalsActivity.class);
-        // intent.putExtra("filter_size", size);
-        // intent.putExtra("filter_sex", sex);
-        // intent.putExtra("filter_category", category);
-        // startActivity(intent);
+        ArrayAdapter<String> adapterSexo = new ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_item,
+                new String[] {"Todos", "Macho", "Hembra"});
+        adapterSexo.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spSexo.setAdapter(adapterSexo);
+
+        ArrayAdapter<String> adapterCategoria = new ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_item,
+                new String[] {"Todos", "Perro", "Gato"});
+        adapterCategoria.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spCategoria.setAdapter(adapterCategoria);
+    }
+
+    private void applyFilters() {
+        try {
+            String tamano = spTamano.getSelectedItem() != null ? spTamano.getSelectedItem().toString() : "Todos";
+            String sexo = spSexo.getSelectedItem() != null ? spSexo.getSelectedItem().toString() : "Todos";
+            String categoria = spCategoria.getSelectedItem() != null ? spCategoria.getSelectedItem().toString() : "Todos";
+
+            StringBuilder q = new StringBuilder();
+
+            if (!"Todos".equalsIgnoreCase(tamano)) {
+                q.append("tamano=").append(URLEncoder.encode(tamano, StandardCharsets.UTF_8.toString()));
+            }
+            if (!"Todos".equalsIgnoreCase(sexo)) {
+                if (q.length() > 0) q.append("&");
+                q.append("sexo=").append(URLEncoder.encode(sexo, StandardCharsets.UTF_8.toString()));
+            }
+            if (!"Todos".equalsIgnoreCase(categoria)) {
+                if (q.length() > 0) q.append("&");
+                q.append("categoria=").append(URLEncoder.encode(categoria, StandardCharsets.UTF_8.toString()));
+            }
+
+            Intent result = new Intent();
+            result.putExtra("query", q.toString());
+            setResult(RESULT_OK, result);
+            finish();
+        } catch (Exception e) {
+            Toast.makeText(this, "Error aplicando filtros", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+            Intent result = new Intent();
+            result.putExtra("query", "");
+            setResult(RESULT_OK, result);
+            finish();
+        }
     }
 
     private void clearFilters() {
-        spTamano.setSelection(0);
-        spSexo.setSelection(0);
-        spCategoria.setSelection(0);
+        Intent result = new Intent();
+        result.putExtra("query", "");
+        setResult(RESULT_OK, result);
+        finish();
     }
 }

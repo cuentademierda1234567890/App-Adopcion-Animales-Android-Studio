@@ -22,9 +22,7 @@ public class PetAdapter extends RecyclerView.Adapter<PetAdapter.ViewHolder> {
     public PetAdapter(Context c, JSONArray petsArray) {
         this.ctx = c;
         this.pets = petsArray;
-        if (this.pets == null) {
-            this.pets = new JSONArray(); // evita NPE en getItemCount
-        }
+        if (this.pets == null) this.pets = new JSONArray();
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -57,9 +55,14 @@ public class PetAdapter extends RecyclerView.Adapter<PetAdapter.ViewHolder> {
             }
 
             holder.tvPetName.setText(pet.optString("nombre", "Sin nombre"));
+
             String tamano = pet.optString("tamano", "");
             String categoria = pet.optString("categoria", "");
-            String info = (tamano.isEmpty() ? "" : tamano) + (!tamano.isEmpty() && !categoria.isEmpty() ? " • " : "") + (categoria.isEmpty() ? "" : categoria);
+            String sexo = pet.optString("sexo", "");
+            String info = "";
+            if (!tamano.isEmpty()) info += tamano;
+            if (!categoria.isEmpty()) info += (info.isEmpty() ? "" : " • ") + categoria;
+            if (!sexo.isEmpty()) info += (info.isEmpty() ? "" : " • ") + sexo;
             holder.tvPetInfo.setText(info);
 
             String foto = pet.optString("foto", "");
@@ -73,13 +76,13 @@ public class PetAdapter extends RecyclerView.Adapter<PetAdapter.ViewHolder> {
                 holder.imgPet.setImageResource(R.mipmap.ic_launcher);
             }
 
+            // Al tocar: enviar la mascota completa como JSON string al detalle
             holder.itemView.setOnClickListener(v -> {
                 try {
                     Intent i = new Intent(ctx, PetDetailActivity.class);
-                    i.putExtra("pet_id", pet.optInt("id", 0));
+                    i.putExtra("pet_json", pet.toString());
                     ctx.startActivity(i);
                 } catch (Exception e) {
-                    // no hacer crash por click
                     e.printStackTrace();
                 }
             });
