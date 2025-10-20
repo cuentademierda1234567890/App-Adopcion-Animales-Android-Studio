@@ -20,6 +20,7 @@ public class PetDetailActivity extends AppCompatActivity {
     Button btnSolicitar;
     JSONObject pet;
     private static final String TAG = "PetDetailActivity";
+    int userId = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,16 +35,18 @@ public class PetDetailActivity extends AppCompatActivity {
 
         // Leer pet_json del Intent
         String petJson = getIntent().getStringExtra("pet_json");
+        userId = getIntent().getIntExtra("user_id", 0); // <-- recepción user_id
+
         if (petJson == null || petJson.trim().isEmpty()) {
-            // Si no vino JSON, intentar por id (por compatibilidad)
             int petId = getIntent().getIntExtra("pet_id", 0);
             if (petId <= 0) {
                 Toast.makeText(this, "Datos de la mascota no disponibles", Toast.LENGTH_SHORT).show();
                 finish();
                 return;
             } else {
-                // Si solo viene id, cargamos desde API
-                loadPetFromApi(petId);
+                // Si sólo viene id, podrías cargar desde API
+                Toast.makeText(this, "Carga por id no implementada", Toast.LENGTH_SHORT).show();
+                finish();
                 return;
             }
         }
@@ -59,11 +62,14 @@ public class PetDetailActivity extends AppCompatActivity {
         }
 
         btnSolicitar.setOnClickListener(v -> {
-            // Abrir ApplicationFormActivity pasando datos de la mascota
             try {
                 Intent i = new Intent(PetDetailActivity.this, ApplicationFormActivity.class);
                 i.putExtra("pet_id", pet.optInt("id", 0));
                 i.putExtra("pet_nombre", pet.optString("nombre", ""));
+                // pasar user_id hacia el formulario (necesario para que no pida datos)
+                i.putExtra("user_id", userId);
+                // opcional: pasar direccion visita si la tienes en pet (por ejemplo pet.optString("direccion_visita"))
+                i.putExtra("visit_address", "Refugio Calle Falsa 123"); // ajusta si tienes dirección real
                 startActivity(i);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -99,13 +105,5 @@ public class PetDetailActivity extends AppCompatActivity {
         } else {
             imgPet.setImageResource(R.mipmap.ic_launcher);
         }
-    }
-
-    private void loadPetFromApi(int id) {
-        // Si quieres mantener la opción de cargar por ID desde API,
-        // implementa una llamada a Constants.URL_GET_ANIMAL?id=...
-        // Por ahora avisamos y cerramos (evitar crash)
-        Toast.makeText(this, "Carga por id no implementada en este build", Toast.LENGTH_SHORT).show();
-        finish();
     }
 }

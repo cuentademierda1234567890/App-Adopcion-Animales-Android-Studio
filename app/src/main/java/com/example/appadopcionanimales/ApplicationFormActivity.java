@@ -2,15 +2,14 @@ package com.example.appadopcionanimales;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.ScrollView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -20,18 +19,18 @@ import com.android.volley.toolbox.Volley;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
 public class ApplicationFormActivity extends AppCompatActivity {
 
-    EditText etApplicantName, etApplicantAge, etApplicantPhone, etApplicantAddress, etNotes;
-    Button btnSubmitApplication, btnAceptarHorario;
+    TextView tvPetName, tvVisitAddress;
     RadioGroup rgSlots;
-    LinearLayout slotsContainer;
-    int selectedSlotId = 0;
+    Button btnSubmit;
+    EditText etNotes;
     int petId = 0;
+    int userId = 0;
+    int selectedSlotId = 0;
     private static final String TAG = "ApplicationForm";
 
     @Override
@@ -39,38 +38,44 @@ public class ApplicationFormActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_application_form);
 
-        etApplicantName = findViewById(R.id.etApplicantName);
-        etApplicantAge = findViewById(R.id.etApplicantAge);
-        etApplicantPhone = findViewById(R.id.etApplicantPhone);
-        etApplicantAddress = findViewById(R.id.etApplicantAddress);
-        etNotes = findViewById(R.id.etNotes);
-        btnSubmitApplication = findViewById(R.id.btnSubmitApplication);
-        btnAceptarHorario = findViewById(R.id.btnAceptarHorario);
+        tvPetName = findViewById(R.id.tvPetNameSimple);
+        tvVisitAddress = findViewById(R.id.tvVisitAddress);
         rgSlots = findViewById(R.id.rgSlots);
+        btnSubmit = findViewById(R.id.btnSubmitApplication);
+        etNotes = findViewById(R.id.etNotes);
 
-        // recibir pet_id y pet_nombre si vienen
         petId = getIntent().getIntExtra("pet_id", 0);
         String petNombre = getIntent().getStringExtra("pet_nombre");
-        if (petNombre != null && !petNombre.isEmpty()) {
-            // opcional: mostrar nombre en el formulario (no obligatorio)
+        userId = getIntent().getIntExtra("user_id", 0);
+        String visitAddress = getIntent().getStringExtra("visit_address");
+
+        if (petNombre != null) tvPetName.setText(petNombre);
+        if (visitAddress == null || visitAddress.trim().isEmpty()) visitAddress = "Refugio - Dirección: Calle Falsa 123";
+        tvVisitAddress.setText(visitAddress);
+
+        if (userId <= 0) {
+            Toast.makeText(this, "Necesitás iniciar sesión para solicitar adopción", Toast.LENGTH_LONG).show();
+            finish();
+            return;
         }
 
-        // Cargar slots desde servidor
         loadSlots();
 
-        // Aceptar horario: solo confirma seleccion (puede ser útil para UI)
-        btnAceptarHorario.setOnClickListener(v -> {
+        btnSubmit.setOnClickListener(v -> {
             int sel = rgSlots.getCheckedRadioButtonId();
             if (sel == -1) {
-                Toast.makeText(this, "Selecciona un horario primero", Toast.LENGTH_SHORT).show();
+                Toast.makeText(ApplicationFormActivity.this, "Seleccioná un horario", Toast.LENGTH_SHORT).show();
                 return;
             }
             RadioButton rb = findViewById(sel);
-            selectedSlotId = Integer.parseInt(rb.getTag().toString());
-            Toast.makeText(this, "Horario seleccionado: " + rb.getText(), Toast.LENGTH_SHORT).show();
+            try {
+                selectedSlotId = Integer.parseInt(rb.getTag().toString());
+            } catch (Exception e) {
+                Toast.makeText(ApplicationFormActivity.this, "Horario inválido", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            sendSolicitud();
         });
-
-        btnSubmitApplication.setOnClickListener(v -> submitApplication());
     }
 
     private void loadSlots() {
@@ -86,20 +91,26 @@ public class ApplicationFormActivity extends AppCompatActivity {
                         JSONArray slots = obj.optJSONArray("slots");
                         if (slots == null) return;
 
-                        // llenar RadioGroup dinámicamente
                         rgSlots.removeAllViews();
                         for (int i = 0; i < slots.length(); i++) {
                             JSONObject s = slots.getJSONObject(i);
                             int id = s.optInt("id", 0);
                             String time = s.optString("slot_time", "");
+                            boolean disponible = s.optBoolean("disponible", true);
                             int booked = s.optInt("booked", 0);
 
+                            // Solo agregar slots disponibles y no booked
+                            if (!disponible || booked == 1) continue;
+
                             RadioButton rb = new RadioButton(this);
-                            rb.setId(View.generateViewId());
-                            rb.setText(time + (booked == 1 ? " (ocupado)" : ""));
+                            rb.setId(android.view.View.generateViewId());
+                            rb.setText(time);
                             rb.setTag(String.valueOf(id));
-                            rb.setEnabled(booked == 0);
                             rgSlots.addView(rb);
+                        }
+
+                        if (rgSlots.getChildCount() == 0) {
+                            Toast.makeText(this, "No hay horarios disponibles", Toast.LENGTH_LONG).show();
                         }
                     } catch (Exception e) {
                         Log.e(TAG, "Error parseando slots", e);
@@ -113,39 +124,8 @@ public class ApplicationFormActivity extends AppCompatActivity {
         Volley.newRequestQueue(this).add(sr);
     }
 
-    private void submitApplication() {
-        String name = etApplicantName.getText().toString().trim();
-        String ageS = etApplicantAge.getText().toString().trim();
-        String phone = etApplicantPhone.getText().toString().trim();
-        String addr = etApplicantAddress.getText().toString().trim();
-        String notes = etNotes.getText().toString().trim();
-
-        if (name.isEmpty() || ageS.isEmpty() || phone.isEmpty()) {
-            Toast.makeText(this, "Completa nombre, edad y teléfono", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        int age;
-        try {
-            age = Integer.parseInt(ageS);
-        } catch (NumberFormatException e) {
-            Toast.makeText(this, "Edad inválida", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        if (age < 18) {
-            Toast.makeText(this, "El solicitante debe ser mayor de 18 años", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        // comprobar slot seleccionado
-        int sel = rgSlots.getCheckedRadioButtonId();
-        if (sel == -1) {
-            Toast.makeText(this, "Selecciona un horario disponible", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        RadioButton rb = findViewById(sel);
-        selectedSlotId = Integer.parseInt(rb.getTag().toString());
+    private void sendSolicitud() {
+        String notas = etNotes.getText().toString().trim(); // opcional
 
         String url = Constants.URL_SUBMIT_SOLICITUD;
         StringRequest sr = new StringRequest(Request.Method.POST, url,
@@ -153,29 +133,35 @@ public class ApplicationFormActivity extends AppCompatActivity {
                     try {
                         JSONObject obj = new JSONObject(response);
                         if (obj.optBoolean("success", false)) {
-                            Toast.makeText(this, "Solicitud enviada y horario reservado", Toast.LENGTH_LONG).show();
+                            Toast.makeText(ApplicationFormActivity.this, "Solicitud programada con éxito", Toast.LENGTH_LONG).show();
+                            // Volver al HomeActivity
+                            Intent i = new Intent(ApplicationFormActivity.this, HomeActivity.class);
+                            i.putExtra("user_id", userId);
+                            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                            startActivity(i);
                             finish();
                         } else {
-                            Toast.makeText(this, "Error: " + obj.optString("msg"), Toast.LENGTH_LONG).show();
+                            // mostrar mensaje del servidor y recargar slots (por si cambió disponibilidad)
+                            String msg = obj.optString("msg", "No se pudo crear solicitud");
+                            Toast.makeText(ApplicationFormActivity.this, "Error: " + msg, Toast.LENGTH_LONG).show();
+                            loadSlots();
                         }
                     } catch (Exception e) {
-                        Toast.makeText(this, "Respuesta inválida del servidor", Toast.LENGTH_SHORT).show();
+                        Log.e(TAG, "Respuesta inválida", e);
+                        Toast.makeText(ApplicationFormActivity.this, "Respuesta inválida del servidor", Toast.LENGTH_SHORT).show();
                     }
                 },
                 error -> {
-                    Toast.makeText(this, "Error de red al enviar solicitud", Toast.LENGTH_SHORT).show();
+                    Log.e(TAG, "Error red enviar solicitud", error);
+                    Toast.makeText(ApplicationFormActivity.this, "Error de red al enviar solicitud", Toast.LENGTH_SHORT).show();
                 }) {
             @Override
-            protected Map<String, String> getParams() {
+            protected Map<String,String> getParams() {
                 Map<String,String> p = new HashMap<>();
                 p.put("animal_id", String.valueOf(petId));
-                p.put("slot_id", String.valueOf(selectedSlotId));
-                p.put("solicitante_nombre", name);
-                p.put("solicitante_edad", String.valueOf(age));
-                p.put("solicitante_telefono", phone);
-                p.put("solicitante_direccion", addr);
-                p.put("notas", notes);
-                // p.put("user_id", String.valueOf(userId)); // opcional si querés enviar user id
+                p.put("horario_id", String.valueOf(selectedSlotId));
+                p.put("usuario_id", String.valueOf(userId));
+                p.put("notas", notas); // puede quedar vacío
                 return p;
             }
         };

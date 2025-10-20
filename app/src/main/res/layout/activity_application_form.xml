@@ -11,43 +11,27 @@
         android:layout_height="wrap_content">
 
         <TextView
-            android:layout_width="wrap_content"
+            android:id="@+id/tvPetNameSimple"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Solicitante"
+            android:text="Mascota"
             android:textStyle="bold"
-            android:layout_marginBottom="8dp"/>
-
-        <EditText
-            android:id="@+id/etApplicantName"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Nombre del solicitante"/>
-
-        <EditText
-            android:id="@+id/etApplicantAge"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Edad"
-            android:inputType="number"/>
-
-        <EditText
-            android:id="@+id/etApplicantPhone"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Teléfono"/>
-
-        <EditText
-            android:id="@+id/etApplicantAddress"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Dirección"/>
+            android:textSize="18sp"
+            android:layout_marginBottom="6dp"/>
 
         <TextView
-            android:layout_marginTop="12dp"
+            android:id="@+id/tvVisitAddress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Dirección de visita"
+            android:layout_marginBottom="12dp"/>
+
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Elegí un horario disponible"
-            android:textStyle="bold"/>
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp"/>
 
         <RadioGroup
             android:id="@+id/rgSlots"
@@ -55,12 +39,11 @@
             android:layout_height="wrap_content"
             android:orientation="vertical" />
 
-        <Button
-            android:id="@+id/btnAceptarHorario"
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Aceptar horario"
-            android:layout_marginTop="8dp"/>
+            android:text="Notas (opcional)"
+            android:layout_marginTop="12dp"/>
 
         <EditText
             android:id="@+id/etNotes"
@@ -68,7 +51,7 @@
             android:layout_height="wrap_content"
             android:hint="Observaciones"
             android:inputType="textMultiLine"
-            android:layout_marginTop="12dp"/>
+            android:layout_marginTop="4dp"/>
 
         <Button
             android:id="@+id/btnSubmitApplication"

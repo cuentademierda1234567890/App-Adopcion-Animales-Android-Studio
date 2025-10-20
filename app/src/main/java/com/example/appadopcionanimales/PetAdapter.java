@@ -18,11 +18,12 @@ import org.json.JSONObject;
 public class PetAdapter extends RecyclerView.Adapter<PetAdapter.ViewHolder> {
     Context ctx;
     JSONArray pets;
+    int userId;
 
-    public PetAdapter(Context c, JSONArray petsArray) {
+    public PetAdapter(Context c, JSONArray petsArray, int userId) {
         this.ctx = c;
-        this.pets = petsArray;
-        if (this.pets == null) this.pets = new JSONArray();
+        this.pets = petsArray != null ? petsArray : new JSONArray();
+        this.userId = userId;
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -55,7 +56,6 @@ public class PetAdapter extends RecyclerView.Adapter<PetAdapter.ViewHolder> {
             }
 
             holder.tvPetName.setText(pet.optString("nombre", "Sin nombre"));
-
             String tamano = pet.optString("tamano", "");
             String categoria = pet.optString("categoria", "");
             String sexo = pet.optString("sexo", "");
@@ -67,20 +67,17 @@ public class PetAdapter extends RecyclerView.Adapter<PetAdapter.ViewHolder> {
 
             String foto = pet.optString("foto", "");
             if (foto != null && !foto.isEmpty()) {
-                try {
-                    Picasso.get().load(foto).fit().centerCrop().into(holder.imgPet);
-                } catch (Exception e) {
-                    holder.imgPet.setImageResource(R.mipmap.ic_launcher);
-                }
+                Picasso.get().load(foto).fit().centerCrop().into(holder.imgPet);
             } else {
                 holder.imgPet.setImageResource(R.mipmap.ic_launcher);
             }
 
-            // Al tocar: enviar la mascota completa como JSON string al detalle
             holder.itemView.setOnClickListener(v -> {
                 try {
                     Intent i = new Intent(ctx, PetDetailActivity.class);
                     i.putExtra("pet_json", pet.toString());
+                    // pasar userId para que PetDetail / ApplicationForm sepan quién es el solicitante
+                    i.putExtra("user_id", userId);
                     ctx.startActivity(i);
                 } catch (Exception e) {
                     e.printStackTrace();
